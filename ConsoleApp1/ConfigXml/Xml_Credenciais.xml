@@ -1,0 +1,13 @@
+<SharePointSnapshotTool>
+	<!--This will be the Sql config-->
+	<SqlServer>
+		<Server>localhost</Server>
+		<Database>DataBase</Database>
+		<Username>sql-UserName</Username>
+		<Password>sql-Password</Password>
+	</SqlServer>
+	<!-- -->
+	<SharePoint>
+		
+	</SharePoint>
+</SharePointSnapshotTool>
