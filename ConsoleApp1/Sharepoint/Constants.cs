@@ -4,6 +4,9 @@
 // MVID: 2529ACA9-9F81-4C49-8E47-E8B02D261367
 // Assembly location: C:\Users\KEVIN\Desktop\Visual Studio\SPtoSP\ConsoleApp1.exe
 
+
+// This can be removed as it is not used in the code 
+// We have the Xml_Credencials file
 namespace Bring.Sharepoint
 {
   public class Constants

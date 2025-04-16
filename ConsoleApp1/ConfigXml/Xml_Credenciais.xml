@@ -66,7 +66,7 @@ Ensure that all placeholders (e.g., 'sql-server-name', 'yourdomain.sharepoint.co
         SiteUrl: The relative URL of the SharePoint site containing the list (e.g., '/sites/yoursite').
         Ensure this is correct to locate the list properly.
         -->
-				<SiteUrl>/sites/yoursite</SiteUrl>
+				<SiteUrl>https://bringglobal.sharepoint.com/Pages/home.aspx</SiteUrl> <!-- Change this Url -->
 				<!-- 
         ListTitle: The title of the SharePoint list to replicate.
         NOTE: List titles can change; consider using list GUIDs for more stability if possible.
