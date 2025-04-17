@@ -34,9 +34,9 @@ namespace Bring.Sharepoint
             listItem["Optional_x0020_approver"] = unitItem["Optional_x0020_approver"];
           }
           else
-            listItem["Main_x0020_approver"] = (object) this.GetStructureApprover(listItem);
-          listItem.Update();
-        }
+              listItem["Main_x0020_approver"] = (object) this.GetStructureApprover(listItem);
+                listItem.Update();
+         }
         catch (Exception ex)
         {
           Console.WriteLine(ex.Message);

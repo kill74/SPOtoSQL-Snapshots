@@ -155,7 +155,7 @@ namespace Bring.Sharepoint
                             objArray[1] = (object)"|";
                             objArray[2] = (object)field.InternalName;
                             objArray[3] = (object)"|";
-                            objArray[4] = (object)((FieldLookupValue)obj).LookupId;  // Note: This may be a bug; should cast to FieldUserValue
+                            objArray[4] = (object)((FieldLookupValue)obj).LookupId;  
                             objArray[5] = (object)"|";
                             flag = field.CanBeDeleted;
                             objArray[6] = (object)flag.ToString();
