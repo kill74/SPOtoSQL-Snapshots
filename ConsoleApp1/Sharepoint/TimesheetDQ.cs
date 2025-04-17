@@ -9,68 +9,116 @@ using System;
 
 namespace Bring.Sharepoint
 {
-  internal class TimesheetDQ
-  {
-    public SPOUser Me { get; set; }
-
-    public bool UpdateApprovers()
+    // This class is responsible for updating the approvers in the "Timesheet" SharePoint list
+    // It checks for timesheet items that are missing a "Main Approver" and attempts to fill in that data
+    // by referencing the appropriate Unit or HR Database list
+    internal class TimesheetDQ
     {
-      string str = "<View><Query><Where><IsNull><FieldRef Name ='Main_x0020_approver' /></IsNull></Where></Query></View>";
-      SPOList spoList1 = new SPOList();
-      spoList1.Name = "Timesheet"; //This will be the time that this program will run
-      spoList1.Site = "selfservice/timesheet";
-      spoList1.SPOUser = this.Me;
-      spoList1.CAMLQuery = str;
-      SPOList spoList2 = spoList1;
-      spoList2.Build();
-      foreach (ListItem listItem in (ClientObjectCollection<ListItem>) spoList2.ItemCollection)
-      {
-        try
+        // The SharePoint Online user context used for authentication
+        public SPOUser Me { get; set; }
+        /// <returns>Returns true if the update process runs without crashing.</returns>
+        public bool UpdateApprovers()
         {
-          ListItem unitItem = this.GetUnitItem(listItem);
-          if (unitItem != null && unitItem["Main_x0020_approver"] != null)
-          {
-            listItem["Main_x0020_approver"] = unitItem["Main_x0020_approver"];
-            listItem["Optional_x0020_approver"] = unitItem["Optional_x0020_approver"];
-          }
-          else
-              listItem["Main_x0020_approver"] = (object) this.GetStructureApprover(listItem);
-                listItem.Update();
-         }
-        catch (Exception ex)
-        {
-          Console.WriteLine(ex.Message);
-          Console.WriteLine("Item ID: " + (object) listItem.Id);
+            // CAML Query to find items in "Timesheet" list where Main Approver is NULL
+            string str = "<View><Query><Where><IsNull><FieldRef Name ='Main_x0020_approver' /></IsNull></Where></Query></View>";
+
+            // Initialize a SPOList object for the "Timesheet" list
+            SPOList spoList1 = new SPOList();
+            spoList1.Name = "Timesheet";  // Target list: Timesheet entries
+            spoList1.Site = "selfservice/timesheet";  // SharePoint subsite location
+            spoList1.SPOUser = this.Me;   // Assign user credentials
+            spoList1.CAMLQuery = str;     // Apply the CAML filter
+
+            // Alias for easier reference
+            SPOList spoList2 = spoList1;
+
+            // Fetch the list items based on the query
+            spoList2.Build();
+
+            // Loop through each retrieved ListItem
+            foreach (ListItem listItem in (ClientObjectCollection<ListItem>) spoList2.ItemCollection)
+            {
+                try
+                {
+                    // Attempt to fetch a matching Unit item for this timesheet entry
+                    ListItem unitItem = this.GetUnitItem(listItem);
+
+                    // If a matching unit is found and it has a Main Approver defined:
+                    if (unitItem != null && unitItem["Main_x0020_approver"] != null)
+                    {
+                        // Assign Main Approver from Unit item
+                        listItem["Main_x0020_approver"] = unitItem["Main_x0020_approver"];
+                        // Assign Optional Approver from Unit item
+                        listItem["Optional_x0020_approver"] = unitItem["Optional_x0020_approver"];
+                    }
+                    else
+                    {
+                        // If no Unit match or approver is missing, fetch a fallback approver from HR Database
+                        listItem["Main_x0020_approver"] = (object) this.GetStructureApprover(listItem);
+                    }
+
+                    // Update the current list item in SharePoint's memory
+                    listItem.Update();
+                }
+                catch (Exception ex)
+                {
+                    // Log errors for easier debugging
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("Item ID: " + listItem.Id);
+                }
+            }
+
+            // Commit all the batched updates to SharePoint in one request
+            spoList2.Ctx.ExecuteQuery();
+
+            // Return true to indicate success
+            return true;
         }
-      }
-      spoList2.Ctx.ExecuteQuery();
-      return true;
-    }
+        /// <param name="item">The timesheet list item being processed.</param>
+        /// <returns>The matched Unit list item or null if none is found.</returns>
+        private ListItem GetUnitItem(ListItem item)
+        {
+            // Prepare to query the "Unit" SharePoint list
+            SPOList spoList1 = new SPOList();
+            spoList1.Name = "Unit";
+            spoList1.Site = "seed";
+            spoList1.SPOUser = this.Me;
 
-    private ListItem GetUnitItem(ListItem item)
-    {
-      SPOList spoList1 = new SPOList();
-      spoList1.Name = "Unit";
-      spoList1.Site = "seed";
-      spoList1.SPOUser = this.Me;
-      SPOList spoList2 = spoList1;
-      string str = "<View><Query><Where><And><Eq><FieldRef Name ='Project_x0020_ID' /><Value Type='Text'>" + ((FieldLookupValue) item["Unit_x003a_Project_x0020_ID"]).LookupValue + "</Value></Eq><Eq><FieldRef Name ='Active' /><Value Type='Text'>Yes</Value></Eq></And></Where></Query></View>";
-      spoList2.CAMLQuery = str;
-      spoList2.Build();
-      return spoList2.ItemCollection.Count != 0 ? spoList2.ItemCollection[0] : (ListItem) null;
-    }
+            // Build a CAML query to match the Project ID and check if the Unit is active
+            string str = "<View><Query><Where><And><Eq><FieldRef Name ='Project_x0020_ID' /><Value Type='Text'>" 
+                       + ((FieldLookupValue) item["Unit_x003a_Project_x0020_ID"]).LookupValue 
+                       + "</Value></Eq><Eq><FieldRef Name ='Active' /><Value Type='Text'>Yes</Value></Eq></And></Where></Query></View>";
 
-    private FieldUserValue GetStructureApprover(ListItem item)
-    {
-      SPOList spoList1 = new SPOList();
-      spoList1.Name = "HR Database";
-      spoList1.Site = "people";
-      spoList1.SPOUser = this.Me;
-      SPOList spoList2 = spoList1;
-      string str = "<View><Query><Where><Eq><FieldRef Name ='Display_x0020_Name' LookupId='TRUE'/><Value Type='Integer'>" + (object) ((FieldLookupValue) item["Resource"]).LookupId + "</Value></Eq></Where></Query></View>";
-      spoList2.CAMLQuery = str;
-      spoList2.Build();
-      return spoList2.ItemCollection.Count != 0 ? (FieldUserValue) spoList2.ItemCollection[0]["Approver1"] : (FieldUserValue) null;
+            // Apply the query
+            spoList1.CAMLQuery = str;
+            spoList1.Build();
+
+            // Return the first matching unit item, or null if none are found
+            return spoList1.ItemCollection.Count != 0 ? spoList1.ItemCollection[0] : null;
+        }
+
+        /// <param name="item">The timesheet list item being processed.</param>
+        /// <returns>The fallback approver or null if none are found.</returns>
+        private FieldUserValue GetStructureApprover(ListItem item)
+        {
+            // Prepare to query the "HR Database" SharePoint list
+            SPOList spoList1 = new SPOList();
+            spoList1.Name = "HR Database";
+            spoList1.Site = "people";
+            spoList1.SPOUser = this.Me;
+
+            // Build CAML query to match the employee's lookup ID
+            string str = "<View><Query><Where><Eq><FieldRef Name ='Display_x0020_Name' LookupId='TRUE'/>"
+                       + "<Value Type='Integer'>" + ((FieldLookupValue) item["Resource"]).LookupId + "</Value></Eq></Where></Query></View>";
+
+            // Apply the query
+            spoList1.CAMLQuery = str;
+            spoList1.Build();
+
+            // Return the Approver1 field from the first matching HR item or null if none are found
+            return spoList1.ItemCollection.Count != 0 
+                   ? (FieldUserValue) spoList1.ItemCollection[0]["Approver1"] 
+                   : null;
+        }
     }
-  }
 }
