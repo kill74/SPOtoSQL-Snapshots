@@ -1,119 +1,23 @@
-<!-- 
-This configuration file is used by the SharePointSnapshotTool to replicate data from SharePoint lists to a SQL Server database. 
-It includes settings for SQL Server connection, SharePoint authentication, and replication configurations for specific SharePoint lists.
-Ensure that all placeholders (e.g., 'sql-server-name', 'yourdomain.sharepoint.com') are replaced with actual values.
--->
-<SharePointSnapshotTool>
+<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+	<!-- SQL connection string used by the application -->
+	<SQL_CON_STRING>Server=109.71.46.223;Database=LAKEDB;Persist Security Info=False;User ID=SQL_Server_user;Password=pass</SQL_CON_STRING>
 
-	<!-- 
-  SQL Server connection details. 
-  - Server: The name or IP address of the SQL Server instance.
-  - Database: The name of the target database where data will be replicated.
-  - Username: The SQL Server username with necessary permissions.
-  - Password: The password for the SQL Server user. 
-  NOTE: For better security, consider using integrated security or storing credentials securely (e.g., Azure Key Vault).
-  -->
-	<SqlServer>
-		<Server>sql-server-name</Server>
-		<Database>target-database-name</Database>
-		<Username>sql-username</Username>
-		<Password>sql-password</Password>
-	</SqlServer>
+	<!-- SharePoint credentials -->
+	<SPO_USER>Username</SPO_USER>
+	<SPO_PASSWORD>Password</SPO_PASSWORD>
 
-	<!-- 
-  SharePoint site details and authentication configuration.
-  - BaseUrl: The root URL of your SharePoint tenant (e.g., https://yourdomain.sharepoint.com).
-  - AuthenticationMode: Specifies the authentication method:
-    - 'UserPass': Uses username and password for authentication.
-    - 'App': Uses app credentials (client ID, client secret, tenant ID) for authentication.
-  NOTE: Using 'App' authentication is recommended for better security and scalability in automated processes.
-  -->
-	<SharePoint>
-		<BaseUrl>https://yourdomain.sharepoint.com</BaseUrl>
-		<!-- Choose the authentication mode: 'UserPass' or 'App' -->
-		<AuthenticationMode>UserPass</AuthenticationMode>
-		<!-- User credentials (used if AuthenticationMode is 'UserPass') -->
-		<Username>user@domain.com</Username>
-		<Password>password</Password>
-		<!-- App credentials (used if AuthenticationMode is 'App') -->
-		<ClientId>app-client-id</ClientId>
-		<ClientSecret>app-secret</ClientSecret>
-		<TenantId>tenant-id</TenantId>
-	</SharePoint>
+	<!-- Snapshot date constant -->
+	<SNAP_DATE>2100-01-01 00:00:00.000</SNAP_DATE>
 
-	<!-- 
-  Replication configuration settings.
-  This section defines how data is replicated from SharePoint lists to SQL tables, including global settings and per-list configurations.
-  -->
-	<ReplicationConfiguration>
-		<!-- 
-    GlobalIgnoreColumns: A list of column names to be ignored in all SharePoint lists during replication.
-    These columns will not be included in any SQL tables, reducing data transfer and storage.
-    -->
-		<GlobalIgnoreColumns>
-			<Column>ColumnName_1</Column>
-			<!-- Add more columns to ignore globally as needed -->
-			<Column>ColumnName_n</Column>
-		</GlobalIgnoreColumns>
-
-		<!-- 
-    SharePointLists: Configurations for each SharePoint list to be replicated.
-    Each <List> element specifies the site, list title, target SQL table, and detailed column mappings.
-    -->
-		<SharePointLists>
-			<List>
-				<!-- 
-        SiteUrl: The relative URL of the SharePoint site containing the list (e.g., '/sites/yoursite').
-        Ensure this is correct to locate the list properly.
-        -->
-				<SiteUrl>https://bringglobal.sharepoint.com/Pages/home.aspx</SiteUrl> <!-- Change this Url -->
-				<!-- 
-        ListTitle: The title of the SharePoint list to replicate.
-        NOTE: List titles can change; consider using list GUIDs for more stability if possible.
-        -->
-				<ListTitle>Sharepoint_List_Name</ListTitle>
-				<!-- 
-        SqlTable: The name of the SQL table where the data from this list will be replicated.
-        Ensure this table exists or will be created with the appropriate schema.
-        -->
-				<SqlTable>SQL_table_name</SqlTable>
-				<!-- 
-        AutoAddNewColumns: If 'true', new columns added to the SharePoint list will be automatically added to the SQL table.
-        Set to 'false' to prevent automatic schema changes and manage them manually.
-        Default is 'true'.
-        -->
-				<AutoAddNewColumns>true</AutoAddNewColumns>
-				<!-- 
-        Disabled: Optional. If 'true', replication for this list will be skipped.
-        Useful for testing or when certain lists are no longer needed.
-        Default is 'false'.
-        -->
-				<Disabled>true_or_false</Disabled>
-				<!-- 
-        ColumnMappings: Defines how SharePoint columns map to SQL columns.
-        Each <Mapping> specifies the SharePoint column, the corresponding SQL column, its data type, and whether to ignore it.
-        -->
-				<ColumnMappings>
-					<Mapping>
-						<SharepointColumn>Sharepoint_column_name</SharepointColumn>
-						<SqlColumn>SQL_column_name</SqlColumn>
-						<!-- 
-            SqlDataType: The SQL data type for the column (e.g., NVARCHAR(255), INT, DATETIME).
-            Ensure this matches the expected data type in SQL Server for proper data storage.
-            -->
-						<SqlDataType>NVARCHAR(255)</SqlDataType>
-						<!-- 
-            IgnoreColumn: Optional. If 'true', this column will be ignored during replication.
-            Useful for excluding specific columns on a per-list basis.
-            Default is 'false'.
-            -->
-						<IgnoreColumn>true_or_false</IgnoreColumn>
-					</Mapping>
-					<!-- Add more <Mapping> elements as needed for additional columns in this list -->
-				</ColumnMappings>
-			</List>
-			<!-- Include additional <List> elements for other SharePoint lists to replicate -->
-		</SharePointLists>
-	</ReplicationConfiguration>
-	
-</SharePointSnapshotTool>
+	<!-- SharePoint field names and mappings -->
+	<UNIT_PROJECT_ID_IN>Unit_x003a_Project_x0020_ID</UNIT_PROJECT_ID_IN>
+	<UNIT_UNIT_TYPE_IN>Unit_x003a_Unit_x0020_type</UNIT_UNIT_TYPE_IN>
+	<IR_UNIT_IN>Unit_x002f_Project_x003a_Project0</IR_UNIT_IN>
+	<MAIN_APPROVER_IN>Main_x0020_approver</MAIN_APPROVER_IN>
+	<OPTIONAL_APPROVER_IN>Optional_x0020_approver</OPTIONAL_APPROVER_IN>
+	<FINANCIAL_APPROVER_IN>Financial_x0020_approver</FINANCIAL_APPROVER_IN>
+	<PROJECT_ID_IN>Project_x0020_ID</PROJECT_ID_IN>
+	<HR_DISPLAY_NAME_IN>Display_x0020_Name</HR_DISPLAY_NAME_IN>
+	<HR_APPROVER_IN>Approver1</HR_APPROVER_IN>
+</Configuration>
