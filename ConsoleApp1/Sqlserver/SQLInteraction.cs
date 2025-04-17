@@ -24,6 +24,12 @@ namespace Bring.Sqlserver
         public Dictionary<string, Field> FNDictionary { get; set; } // Field mapping dictionary
         public string CurrentTime { get; set; } // Timestamp for snapshot labeling
 
+        // What this will do is to rename the columns in the SQL table
+        private Dictionary<string, string> colRenameMapping = new Dictionary<string, string>()
+        {
+            { "X", "Y" } // Mapping example: "X" in SharePoint to "Y" in SQL
+        };
+
         // Builds connection, table and metadata setup
         public void Build()
         {
@@ -198,7 +204,11 @@ namespace Bring.Sqlserver
             foreach (Field field in this.List.Fields)
             {
                 if (field.TypeAsString != "Computed")
-                    this.FNDictionary.Add(this.GetKeyName(this.GetActualColName(field), 1), field);
+                {
+                    // Obter o nome real da coluna aplicando as convenções e mapeamento
+                    string actualColName = this.GetActualColName(field);
+                    this.FNDictionary.Add(this.GetKeyName(actualColName, 1), field);
+                }
             }
         }
 
@@ -209,12 +219,19 @@ namespace Bring.Sqlserver
             return this.FNDictionary.ContainsKey(newKey) ? GetKeyName(key, i + 1) : newKey;
         }
 
-        // Resolves the SQL-friendly name for a SharePoint field
+        // Resolves the SQL-friendly name for a SharePoint field and applies mapeamento se necessário
         private string GetActualColName(Field pField)
         {
+            // Convert the field name to PascalCase
             string name = this.ColNameConvetions(pField);
-            int duplicates = 0;
 
+            // Verify if the field name is in the rename mapping
+            if (this.colRenameMapping.ContainsKey(name))
+            {
+                name = this.colRenameMapping[name];
+            }
+
+            int duplicates = 0;
             foreach (Field field in this.List.Fields)
             {
                 if (field.TypeAsString != "Computed" && name.Equals(this.ColNameConvetions(field), StringComparison.OrdinalIgnoreCase))
@@ -346,4 +363,3 @@ namespace Bring.Sqlserver
         }
     }
 }
-

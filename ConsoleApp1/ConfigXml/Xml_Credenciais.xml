@@ -1,16 +1,30 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Configuration>
-	<!-- SQL connection string used by the application -->
+	<!-- 
+		SQL connection string used by the application.
+		Replace the placeholder values with the actual server, database, user ID, and password.
+	-->
 	<SQL_CON_STRING>Server=109.71.46.223;Database=LAKEDB;Persist Security Info=False;User ID=SQL_Server_user;Password=pass</SQL_CON_STRING>
 
-	<!-- SharePoint credentials -->
+	<!-- 
+		SharePoint credentials.
+		Provide the username and password for accessing SharePoint services.
+	-->
 	<SPO_USER>Username</SPO_USER>
 	<SPO_PASSWORD>Password</SPO_PASSWORD>
 
-	<!-- Snapshot date constant -->
-	<SNAP_DATE>2100-01-01 00:00:00.000</SNAP_DATE>
+	<!-- 
+		Snapshot date constant.
+		Used as a reference date for specific operations in the application.
+		Format: YYYY-MM-DD HH:MM:SS.mmm
+	-->
+	<SNAP_DATE>2100-01-01 00:00:00.000</SNAP_DATE> <!-- Most recent SnapShot -->
 
-	<!-- SharePoint field names and mappings -->
+	<!-- 
+		SharePoint field names and mappings.
+		These fields map to specific SharePoint columns used in the application.
+		Replace the values with the actual SharePoint field names as needed.
+	-->
 	<UNIT_PROJECT_ID_IN>Unit_x003a_Project_x0020_ID</UNIT_PROJECT_ID_IN>
 	<UNIT_UNIT_TYPE_IN>Unit_x003a_Unit_x0020_type</UNIT_UNIT_TYPE_IN>
 	<IR_UNIT_IN>Unit_x002f_Project_x003a_Project0</IR_UNIT_IN>
